@@ -11,7 +11,7 @@ using namespace std;
 
 bool add(int client,struct sockaddr);
 bool send_info(int client);
-void listen_ip(size_t ip = htonl(INADDR_LOOPBACK),size_t port = htons(9999))
+void listen_ip(size_t ip ,size_t port );
 
 struct data
 {
@@ -28,28 +28,29 @@ int main(int argc,char ** argv)
     return 0;
 }
 
-void listen_ip(size_t ip = htonl(INADDR_LOOPBACK),size_t port = htons(9999))
+void listen_ip(size_t ip = INADDR_LOOPBACK,size_t port = 9999)
 {
+    
     int listener = socket(AF_INET,SOCK_STREAM,0);
     struct sockaddr_in sa;
     struct sockaddr cls;
-    int * length
+    unsigned int * length;
 
     sa.sin_family = AF_INET;
-    sa.sin_port = port;
+    sa.sin_port = htons(port);
     // inet_pton(AF_INET,'0.0.0.0',&(sa.sin_addr)); 
-    sa.sin_addr.s_addr = ip;
+    sa.sin_addr.s_addr = htonl(ip);
 
     if (bind(listener,(struct sockaddr *)&sa,sizeof(sa)) < 0)
     {
         cout << "bind error" << endl; 
-        return 1;
+        return;
     }
 
     listen(listener,SOMAXCONN);
     while (1)
     {
-        int client = accept(listener,&cls, length)
+        int client = accept(listener,&cls, length);
         add(client,cls);
         send_info(client);
         
@@ -62,12 +63,12 @@ bool add(int client,struct sockaddr)
     //clients.push_back(client);
     data d;
     int pos = clients.size()-1;
-    recv(client,&d,sizeof(data),0);
-    send(client,client,sizeof(int));
-    clients.push_back(map<int,data>(client,d);
+    recv(client,&d,sizeof(data),MSG_NOSIGNAL);
+    send(client,&client,sizeof(int),MSG_NOSIGNAL);
+    clients.insert(pair<int,data>(client,d));
 }
 
 bool send_info(int client)
 {
-    send(client,ref(clients),clients.size()*sizeof(data) * sizeof(int));
+    send(client,&clients,clients.size()*sizeof(data) * sizeof(int),MSG_NOSIGNAL);
 }
