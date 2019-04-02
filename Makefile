@@ -6,5 +6,5 @@ server:b_server
 	./server
 b_client:
 	$(CC) -o client client.cpp
-client:
+client:b_client
 	./client
